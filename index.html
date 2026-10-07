@@ -1,7 +1,591 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sruntik · repository index</title>
+  <!-- Font Awesome Icons (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ---------- global reset / accessible base ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #faf9fc;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      color: #1e1e2f;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* main card – clean, readable, accessible */
+    .repo-container {
+      max-width: 1000px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.02);
+      padding: 2rem 2rem 2.5rem;
+      border: 1px solid #e9e9ef;
+    }
+
+    /* header section */
+    .repo-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1.25rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid #e2e2ea;
+      padding-bottom: 1.5rem;
+    }
+
+    .repo-header h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #111;
+      word-break: break-word;
+    }
+
+    .repo-header h1 i {
+      color: #2b6f9b;
+      font-size: 1.8rem;
+    }
+
+    .repo-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      margin-left: auto;
+      font-size: 0.95rem;
+      color: #4a4a60;
+    }
+
+    .repo-meta a {
+      color: #2b6f9b;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 12px;
+      padding: 0.2rem 0.5rem;
+      transition: background 0.15s ease;
+    }
+
+    .repo-meta a:hover,
+    .repo-meta a:focus-visible {
+      background: #eef4f8;
+      outline: 2px solid #2b6f9b;
+      outline-offset: 2px;
+    }
+
+    .repo-meta i {
+      font-size: 0.9rem;
+    }
+
+    /* branch / info bar */
+    .branch-info {
+      background: #f4f6fa;
+      border-radius: 40px;
+      padding: 0.4rem 1rem;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.6rem;
+      color: #1d2b3f;
+      border: 1px solid #dee4ed;
+      font-weight: 500;
+    }
+
+    .branch-info i {
+      color: #2b6f9b;
+    }
+
+    /* status area – loading / error / info */
+    .status-region {
+      border-radius: 18px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.4rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-loading {
+      background: #eef4f8;
+      color: #1d3b5c;
+      border-left: 5px solid #2b6f9b;
+    }
+
+    .status-error {
+      background: #fff2f0;
+      color: #a12b2b;
+      border-left: 5px solid #c53b3b;
+    }
+
+    .status-info {
+      background: #f3f9f3;
+      color: #1f5e2f;
+      border-left: 5px solid #2e7d32;
+    }
+
+    .status-region i {
+      font-size: 1.25rem;
+    }
+
+    /* file list – accessible table */
+    .files-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .files-table caption {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .files-table th {
+      text-align: left;
+      background: #f2f4fa;
+      padding: 0.9rem 1rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #2d3f5e;
+      border-bottom: 1px solid #d9dee9;
+    }
+
+    .files-table td {
+      padding: 1rem 1rem;
+      border-bottom: 1px solid #ecedf2;
+      vertical-align: middle;
+      background-color: #ffffff;
+      transition: background 0.1s ease;
+    }
+
+    .files-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .files-table tr:hover td {
+      background: #fafbff;
+    }
+
+    /* file name cell with icon */
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .file-name i {
+      width: 1.5rem;
+      font-size: 1.2rem;
+      text-align: center;
+      color: #2b6f9b;
+    }
+
+    .file-link {
+      color: #1d3b5c;
+      text-decoration: none;
+      border-radius: 6px;
+      padding: 0.2rem 0.4rem;
+      margin: -0.2rem -0.4rem;
+      transition: background 0.15s, color 0.15s;
+      word-break: break-word;
+    }
+
+    .file-link:hover,
+    .file-link:focus-visible {
+      background: #e1ecf5;
+      color: #0e2a44;
+      outline: 2px solid #2b6f9b;
+      outline-offset: 2px;
+      text-decoration: underline;
+    }
+
+    .file-size {
+      color: #4d5d73;
+      font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .badge-dir {
+      background: #e3e9f3;
+      color: #1d3b5c;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-left: 0.5rem;
+    }
+
+    /* accessibility & responsiveness */
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+
+      .repo-container {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+      }
+
+      .repo-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .repo-meta {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .files-table th,
+      .files-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .file-name {
+        gap: 0.5rem;
+      }
+
+      .file-name i {
+        font-size: 1rem;
+        width: 1.2rem;
+      }
+
+      .file-size {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* focus visibility for all interactive elements */
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #2b6f9b;
+      outline-offset: 2px;
+    }
+
+    /* subtle footer */
+    .footnote {
+      margin-top: 1.8rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b6b80;
+      border-top: 1px solid #e2e2ea;
+      padding-top: 1.5rem;
+    }
+
+    .footnote a {
+      color: #2b6f9b;
+      text-decoration: none;
+    }
+
+    .footnote a:hover {
+      text-decoration: underline;
+    }
+
+    /* screen-reader only text */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
 <body>
-<h1>Greetings, earthling!</h1>
-<p>I'm hosted with GitHub Pages.</p>
+  <div class="repo-container">
+    <!-- HEADER -->
+    <div class="repo-header">
+      <h1>
+        <i class="fas fa-code-branch" aria-hidden="true"></i>
+        sruntik.github.io
+      </h1>
+      <div class="repo-meta">
+        <a href="https://github.com/sruntik/sruntik.github.io" target="_blank" rel="noopener noreferrer" aria-label="View repository on GitHub">
+          <i class="fab fa-github" aria-hidden="true"></i> GitHub
+        </a>
+        <a href="https://sruntik.github.io" target="_blank" rel="noopener noreferrer" aria-label="Live site">
+          <i class="fas fa-globe" aria-hidden="true"></i> Live
+        </a>
+      </div>
+    </div>
+
+    <!-- branch info -->
+    <div class="branch-info">
+      <i class="fas fa-code-branch" aria-hidden="true"></i>
+      <span>branch: <strong>main</strong> · default</span>
+    </div>
+
+    <!-- STATUS REGION (initially loading) -->
+    <div id="statusMessage" class="status-region status-loading" role="status" aria-live="polite">
+      <i class="fas fa-spinner fa-pulse" aria-hidden="true"></i>
+      <span>Fetching repository contents…</span>
+    </div>
+
+    <!-- TABLE (populated by JavaScript) -->
+    <table class="files-table" id="fileTable">
+      <caption>Repository contents of sruntik.github.io</caption>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Size</th>
+        </tr>
+      </thead>
+      <tbody id="fileTableBody">
+        <!-- dynamic rows will be inserted here -->
+      </tbody>
+    </table>
+
+    <div class="footnote">
+      <i class="fas fa-folder-open" aria-hidden="true"></i> 
+      files from <strong>sruntik/sruntik.github.io</strong> (main branch)
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // CONFIGURATION
+      const OWNER = 'sruntik';
+      const REPO = 'sruntik.github.io';
+      const BRANCH = 'main';          // default branch – adjust if needed
+      const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
+
+      // DOM elements
+      const statusDiv = document.getElementById('statusMessage');
+      const tableBody = document.getElementById('fileTableBody');
+      const table = document.getElementById('fileTable');
+
+      // helper: format file size
+      function formatSize(bytes) {
+        if (bytes === undefined || bytes === null || bytes === 0) return '—';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+
+      // determine icon class based on file type / name
+      function getIcon(item) {
+        const name = item.name.toLowerCase();
+        if (item.type === 'dir') return 'fas fa-folder';
+        
+        if (name.endsWith('.html') || name.endsWith('.htm')) return 'fas fa-html5';
+        if (name.endsWith('.css')) return 'fab fa-css3-alt';
+        if (name.endsWith('.js')) return 'fab fa-js';
+        if (name.endsWith('.json')) return 'fas fa-code';
+        if (name.endsWith('.md') || name.endsWith('.txt')) return 'fas fa-file-alt';
+        if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.gif') || name.endsWith('.svg') || name.endsWith('.webp')) return 'fas fa-image';
+        if (name.endsWith('.py')) return 'fab fa-python';
+        if (name.endsWith('.java')) return 'fab fa-java';
+        if (name.endsWith('.zip') || name.endsWith('.tar') || name.endsWith('.gz')) return 'fas fa-file-archive';
+        if (name.endsWith('.pdf')) return 'fas fa-file-pdf';
+        if (name.endsWith('.xml')) return 'fas fa-file-code';
+        if (name.endsWith('.yml') || name.endsWith('.yaml')) return 'fas fa-file-code';
+        // default file icon
+        return 'fas fa-file';
+      }
+
+      // build accessible link for a file
+      function getFileUrl(item) {
+        if (item.type === 'dir') {
+          // for directories, link to GitHub tree view
+          return `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}/${item.path}`;
+        }
+        // for files: direct download / raw view? Use GitHub blob view for better accessibility.
+        // But we also want user to see the file content. We'll use github blob view (works for text)
+        // Also alternative: raw link? We'll use the blob view for better syntax / context.
+        return `https://github.com/${OWNER}/${REPO}/blob/${BRANCH}/${item.path}`;
+      }
+
+      // render table rows from array of file items
+      function renderFiles(items) {
+        // clear previous rows
+        tableBody.innerHTML = '';
+
+        if (!items || items.length === 0) {
+          // no files: show message inside table
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 2;
+          cell.style.textAlign = 'center';
+          cell.style.padding = '2rem';
+          cell.style.color = '#4a4a60';
+          cell.innerHTML = '<i class="fas fa-folder-open" style="margin-right:8px;"></i> This repository appears to be empty.';
+          row.appendChild(cell);
+          tableBody.appendChild(row);
+          return;
+        }
+
+        // sort: directories first, then alphabetically (case-insensitive)
+        const sorted = [...items].sort((a, b) => {
+          if (a.type === 'dir' && b.type !== 'dir') return -1;
+          if (a.type !== 'dir' && b.type === 'dir') return 1;
+          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+        });
+
+        for (const item of sorted) {
+          const tr = document.createElement('tr');
+          
+          // --- NAME COLUMN ---
+          const nameTd = document.createElement('td');
+          nameTd.className = 'file-name';
+          
+          const icon = document.createElement('i');
+          const iconClass = getIcon(item);
+          icon.className = iconClass;
+          icon.setAttribute('aria-hidden', 'true');
+          
+          const link = document.createElement('a');
+          link.href = getFileUrl(item);
+          link.className = 'file-link';
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          
+          // accessible link text: include type for screen readers
+          link.textContent = item.name;
+          
+          // if directory, add a small badge (visually and for screen reader)
+          if (item.type === 'dir') {
+            const badge = document.createElement('span');
+            badge.className = 'badge-dir';
+            badge.textContent = 'dir';
+            link.appendChild(badge);
+            link.setAttribute('aria-label', `directory: ${item.name}`);
+          } else {
+            link.setAttribute('aria-label', `file: ${item.name}`);
+          }
+          
+          nameTd.appendChild(icon);
+          nameTd.appendChild(link);
+          
+          // --- SIZE COLUMN ---
+          const sizeTd = document.createElement('td');
+          sizeTd.className = 'file-size';
+          if (item.type === 'dir') {
+            sizeTd.textContent = '—';
+          } else {
+            sizeTd.textContent = formatSize(item.size);
+          }
+          
+          tr.appendChild(nameTd);
+          tr.appendChild(sizeTd);
+          tableBody.appendChild(tr);
+        }
+      }
+
+      // show status message (loading / error / info)
+      function setStatus(type, message, iconClass = '') {
+        statusDiv.className = `status-region status-${type}`;
+        let iconHtml = '';
+        if (type === 'loading') iconHtml = '<i class="fas fa-spinner fa-pulse" aria-hidden="true"></i>';
+        else if (type === 'error') iconHtml = '<i class="fas fa-exclamation-triangle" aria-hidden="true"></i>';
+        else if (type === 'info') iconHtml = '<i class="fas fa-check-circle" aria-hidden="true"></i>';
+        
+        statusDiv.innerHTML = `${iconHtml} <span>${message}</span>`;
+        statusDiv.setAttribute('aria-live', 'polite');
+      }
+
+      // fetch repository contents
+      async function fetchRepoContents() {
+        setStatus('loading', 'Fetching repository contents…');
+        
+        try {
+          const response = await fetch(API_URL, {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+              // no authentication needed for public repo, but rate limits apply (60/hr)
+            }
+          });
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              throw new Error('Repository or branch not found. Please check the repository name and branch.');
+            } else if (response.status === 403) {
+              throw new Error('API rate limit exceeded. Please try again later.');
+            } else {
+              throw new Error(`GitHub API responded with status ${response.status}`);
+            }
+          }
+
+          const data = await response.json();
+          
+          // check if data is an array (should be)
+          if (!Array.isArray(data)) {
+            throw new Error('Unexpected API response: expected a list of files.');
+          }
+
+          // render the files
+          renderFiles(data);
+          
+          // update status to success
+          const fileCount = data.length;
+          setStatus('info', `Loaded ${fileCount} item${fileCount !== 1 ? 's' : ''} from branch “${BRANCH}”.`);
+          
+          // if the list is empty, still show info message but table has its own empty row
+          if (fileCount === 0) {
+            setStatus('info', `Repository is empty.`, 'fas fa-info-circle');
+          }
+
+        } catch (error) {
+          console.error('Error fetching repo:', error);
+          setStatus('error', `Could not load repository: ${error.message}`);
+          
+          // clear table and show error row
+          tableBody.innerHTML = '';
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 2;
+          cell.style.textAlign = 'center';
+          cell.style.padding = '2rem';
+          cell.style.color = '#a12b2b';
+          cell.innerHTML = `<i class="fas fa-exclamation-circle" style="margin-right:8px;"></i> ${error.message}`;
+          row.appendChild(cell);
+          tableBody.appendChild(row);
+        }
+      }
+
+      // start the fetch when page loads
+      window.addEventListener('DOMContentLoaded', fetchRepoContents);
+    })();
+  </script>
 </body>
 </html>
